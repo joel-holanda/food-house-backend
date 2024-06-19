@@ -14,7 +14,8 @@ class Number extends AbstractController
     )]
     public function home(): Response
     {
-        return $this->render('number/numberHome.html.twig');
+        $json = array("Joel", "Holanda", "Rocha");
+        return $this->json($json);
     }
 
 
@@ -25,6 +26,8 @@ class Number extends AbstractController
      requirements: ['num' => '\d+'])]
     public function show(int $num): Response
     {
+        echo '<input type="box"></input>';
+
         return $this->render('number/numberChosen.html.twig', [
             'number' => $num,
         ]);
