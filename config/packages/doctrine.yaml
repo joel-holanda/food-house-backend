@@ -1,9 +1,11 @@
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
-
+        driver: 'pdo_mysql'
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+        server_version: '5.7'
+        charset: utf8mb4
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

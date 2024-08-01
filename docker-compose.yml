@@ -5,6 +5,8 @@ services:
         - "8000:8000"
     volumes:
     - .:/var/www/html
+    networks:
+    - rede
     build: 
       context: .
       dockerfile: Dockerfile
@@ -20,6 +22,12 @@ services:
        MYSQL_DATABASE: ${DB_DATABASE}
      volumes:
        - db_data:/var/lib/mysql  # Persist MySQL data
+     networks:
+      - rede 
 
 volumes:
   db_data:
+
+networks:
+  rede:
+    driver: bridge

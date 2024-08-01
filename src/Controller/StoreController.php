@@ -2,23 +2,25 @@
 
 namespace App\Controller;
 
+use App\Repository\StoreRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class StoreController extends AbstractController
 {
 
     #[Route('/store', name: 'app_store')]
-    public function index(): Response
+    public function index(StoreRepository $storeRepository): JsonResponse
     {
-        $response = new Response(
-            "ojoel",
-            Response::HTTP_OK,
-            ['content-type' => 'text/html']
-        );
-        $response->headers->setCookie(Cookie::create('foot', 'bar'));
-        return $response;
+
+        $stores = $storeRepository->findByExampleField();
+        $name = [];
+        foreach($stores as $store) {
+            $name[] = $store->getName();
+        }
+        return new JsonResponse([
+            'name'=> $name,
+        ]);
     }
 }
