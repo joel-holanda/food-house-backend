@@ -2,31 +2,32 @@ services:
   apache:
     container_name: apache
     ports:
-        - "8000:8000"
+      - "8000:8000"
     volumes:
-    - .:/var/www/html
+      - .:/var/www/html
     networks:
-    - rede
-    build: 
+      - rede
+    build:
       context: .
       dockerfile: Dockerfile
-      
+
   db:
-     image: mysql:latest
-     container_name: dbm
-     ports:
-       - '3307:3306'
-     restart: always
-     environment:
-       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-       MYSQL_DATABASE: ${DB_DATABASE}
-     volumes:
-       - db_data:/var/lib/mysql  # Persist MySQL data
-     networks:
-      - rede 
+    image: mysql:latest
+    container_name: dbm
+    ports:
+      - '3307:3306'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+    volumes:
+      - db_data:/var/lib/mysql # Persist MySQL data
+    networks:
+      - rede
 
 volumes:
   db_data:
+
 
 networks:
   rede:
