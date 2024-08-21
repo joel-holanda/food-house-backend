@@ -1,16 +1,15 @@
 services:
   apache:
-    container_name: apache
+    container_name: app
     ports:
       - "8000:8000"
     volumes:
       - .:/var/www/html
-    networks:
-      - rede
     build:
       context: .
       dockerfile: Dockerfile
-
+    environment:
+      - ENV COMPOSER_ALLOW_SUPERUSER=1
   db:
     image: mysql:latest
     container_name: dbm
@@ -22,13 +21,6 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
     volumes:
       - db_data:/var/lib/mysql # Persist MySQL data
-    networks:
-      - rede
 
 volumes:
   db_data:
-
-
-networks:
-  rede:
-    driver: bridge
