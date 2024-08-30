@@ -8,8 +8,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - ENV COMPOSER_ALLOW_SUPERUSER=1
   db:
     image: mysql:latest
     container_name: dbm

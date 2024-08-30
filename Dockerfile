@@ -5,7 +5,8 @@ WORKDIR "/var/www/html"
 RUN apt update && apt install -y \
     unzip
 
-# COPY . /var/www/html
+RUN docker-php-ext-install pdo pdo_mysql
+
 
 #rodar apenas uma vez para instalar
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

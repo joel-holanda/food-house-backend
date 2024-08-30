@@ -9,6 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: '`order`')]
 class Order
 {
+
+    const STATUS_ORDER_PENDING = -1;
+    const STATUS_ORDER_DONE = 10;
+    const STATUS_ORDER_PROGRESS = 1;
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
