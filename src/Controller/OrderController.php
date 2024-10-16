@@ -3,14 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Order;
-use App\Form\Type\OrderType;
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,18 +18,19 @@ class OrderController extends AbstractController
         name: 'get_orders',
         methods: ['GET'],
     )]
-    public function index(OrderRepository $orderRepository): JsonResponse
+    public function index(OrderRepository $orderRepository, Request $request): JsonResponse
     {
-        $orders = $orderRepository->findAll();
+        $context = json_decode($request->getContent(), true);
 
+        $orders = $orderRepository->searchAllOrders($context['userId']);
         $data = [];
         foreach ($orders as $order) {
             $data[] = [
                 'id' => $order->getId(),
-                'client_name' => $order->getClientName(),
-                'client_address' => $order->getClientAddress(),
+                'client_name' => $order->getUser(),
+                'status' => $order->getStatus(),
+                'client_address' => $order->getPaymentMethod(),
                 'created_at' => $order->getCreatedAt(),
-                'status' => $order->getStatus()
             ];
         }
 
@@ -49,8 +47,8 @@ class OrderController extends AbstractController
         $context = $request->getContent();
         $data = json_decode($context, true);
         $order = new Order;
-        $order->setClientName($data['name']);
-        $order->setClientAddress($data['address']);
+        $order->setUser($data['name']);
+        $order->setStatus($data['address']);
         $order->setCreatedAt(new \DateTimeImmutable('now'));
         $order->setStatus(Order::STATUS_ORDER_PROGRESS);
 
@@ -65,7 +63,7 @@ class OrderController extends AbstractController
         name: 'update_order',
         methods: ['PUT']
     )]
-    public function updateOrder(Request $request, EntityManagerInterface $em, OrderRepository $orderRepository, $id): Response
+    public function updateOrder(Request $request, EntityManagerInterface $em, OrderRepository $orderRepository,$id): Response
     {
         $order = $orderRepository->find($id);
 
@@ -75,11 +73,11 @@ class OrderController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
         
-        if($data["name"]) {
-            $order->setClientName($data["name"]);
+        if($data['name']) {
+            $order->setUser($data['name']);
         }
-        if($data["address"]) {
-            $order->setClientAddress($data["address"]);
+        if($data['address']) {
+            $order->setUser($data['address']);
         }
 
         $em->persist($order);

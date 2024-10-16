@@ -15,9 +15,10 @@ use Symfony\Component\HttpFoundation\Response;
 class StoreController extends AbstractController
 {
     #[Route('/store', name: 'get_store', methods: ['GET'])]
-    public function index(StoreRepository $storeRepository): JsonResponse
+    public function index(StoreRepository $storeRepository, Request $request): JsonResponse
     {
-        $stores = $storeRepository->findAll();
+        // $content = $request->getContent();print_r($content['store']);exit;
+        $stores = $storeRepository->storeIdOrAll($content['store']);
 
         $data = [];
         foreach ($stores as $store) {
