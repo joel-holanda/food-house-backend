@@ -1,18 +1,24 @@
 services:
   apache:
     container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
       - .:/var/www/html
-    build:
-      context: .
-      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: mysql://root:${DB_PASSWORD}@db/${DB_DATABASE}
+    command: bash -c "composer install && php bin/console doctrine:s:u --force && ./startup.sh"
+
   db:
     image: mysql:latest
-    container_name: dbm
+    container_name: db
     ports:
-      - '3307:3306'
+      - '3306:3306'
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
