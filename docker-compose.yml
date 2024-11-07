@@ -1,6 +1,6 @@
 services:
   apache:
-    container_name: app
+    container_name: apache
     build:
       context: .
       dockerfile: Dockerfile
@@ -8,11 +8,7 @@ services:
       - "8000:8000"
     volumes:
       - .:/var/www/html
-    depends_on:
-      - db
-    environment:
-      DATABASE_URL: mysql://root:${DB_PASSWORD}@db/${DB_DATABASE}
-    command: bash -c "composer install && php bin/console doctrine:s:u --force && ./startup.sh"
+    command: ['php', '-S', '0.0.0.0:8000', 'public/index.php']
 
   db:
     image: mysql:latest
@@ -24,7 +20,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     volumes:
-      - db_data:/var/lib/mysql # Persist MySQL data
+      - db_data:/var/lib/mysq
 
 volumes:
   db_data:

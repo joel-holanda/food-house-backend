@@ -17,9 +17,8 @@ class StoreController extends AbstractController
     #[Route('/store', name: 'get_store', methods: ['GET'])]
     public function index(StoreRepository $storeRepository, Request $request): JsonResponse
     {
-        // $content = $request->getContent();print_r($content['store']);exit;
+        $content = json_decode($request->getContent(), true);
         $stores = $storeRepository->storeIdOrAll($content['store']);
-
         $data = [];
         foreach ($stores as $store) {
             $data[] = [
