@@ -33,7 +33,7 @@ class OrderRepository extends ServiceEntityRepository
            ->andWhere('u.id = :user')
            ->setParameter('user', $userId)
            ->getQuery()
-           ->getSQL()
+           ->getResult()
        ;
    }
 

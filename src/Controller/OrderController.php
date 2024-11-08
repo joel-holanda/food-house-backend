@@ -18,11 +18,14 @@ class OrderController extends AbstractController
         name: 'get_orders',
         methods: ['GET'],
     )]
-    public function index(OrderRepository $orderRepository, Request $request): JsonResponse
+    public function index(OrderRepository $orderRepository, Request $request): JsonResponse | Response
     {
         $context = json_decode($request->getContent(), true);
 
         $orders = $orderRepository->searchAllOrders($context['userId']);
+
+        if($orders == []) return new Response("Usuario não encontrado", 201);
+
         $data = [];
         foreach ($orders as $order) {
             $data[] = [
@@ -47,7 +50,7 @@ class OrderController extends AbstractController
         $context = $request->getContent();
         $data = json_decode($context, true);
         $order = new Order;
-        $order->setUser($data['name']);
+        $order->setUser($data['userId']);
         $order->setStatus($data['address']);
         $order->setCreatedAt(new \DateTimeImmutable('now'));
         $order->setStatus(Order::STATUS_ORDER_PROGRESS);

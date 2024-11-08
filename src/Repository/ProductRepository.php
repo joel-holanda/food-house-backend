@@ -27,6 +27,7 @@ class ProductRepository extends ServiceEntityRepository
    public function productsForStore($idUnit): array
    {
        return $this->createQueryBuilder('p')
+           ->join('p.store', 's')
            ->andWhere('p.store = :idUnit')
            ->setParameter('idUnit', $idUnit)
            ->orderBy('p.id', 'ASC')

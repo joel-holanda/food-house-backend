@@ -18,7 +18,7 @@ class StoreController extends AbstractController
     public function index(StoreRepository $storeRepository, Request $request): JsonResponse
     {
         $content = json_decode($request->getContent(), true);
-        $stores = $storeRepository->storeIdOrAll($content['store']);
+        $stores = $storeRepository->storeId($content['store']);
         $data = [];
         foreach ($stores as $store) {
             $data[] = [
@@ -28,7 +28,8 @@ class StoreController extends AbstractController
                 'cnpj' => $store->getCnpj()
             ];
         }
-        return new JsonResponse($data);
+        // var_dump($data);exit;
+        return new JsonResponse(json_encode($data[0]));
     }
 
     #[Route(
