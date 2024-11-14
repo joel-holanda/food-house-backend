@@ -9,7 +9,11 @@ services:
     volumes:
       - .:/var/www/html
     command: ['php', '-S', '0.0.0.0:8000', 'public/index.php']
-
+    depends_on:
+      - db
+    networks: 
+    - local
+    
   db:
     image: mysql:latest
     container_name: db
@@ -20,7 +24,14 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
     volumes:
-      - db_data:/var/lib/mysq
+      - db_data:/var/lib/mysql
+    networks: 
+    - local
+
+
+networks:
+  local:
+    driver: bridge
 
 volumes:
   db_data:
