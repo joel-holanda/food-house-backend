@@ -5,10 +5,10 @@ namespace App\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ProductRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
-class ProductsController extends AbstractController
+class ProductsController extends BaseController
 {
     #[Route(
         '/products',
@@ -17,20 +17,22 @@ class ProductsController extends AbstractController
     )]
     public function getProducts(ProductRepository $productRepository, Request $request)
     {
-        $context = json_decode($request->getContent(), true);
+        $param = $this->verifyParamRouter($request, ['store']);
+        if($param instanceof Response) return $param;
         
-        $products = $productRepository->productsForStore($context['store']);
+        $products = $productRepository->productsForStore($param['store']);
         $data = [];
-
+        
         foreach($products as $product)
         {
             $data[] = [
                 'id' => $product->getId(),
                 'name' => $product->getName(),
-                'store_id' => $product->getStore()->getId()
+                'typeId' => $product->getTypeProduct()->getId(),
+                'storeId' => $product->getStore()->getId()
             ];
         }
-        
+
         return new JsonResponse($data);
     }
 }

@@ -28,6 +28,8 @@ class ProductRepository extends ServiceEntityRepository
    {
        return $this->createQueryBuilder('p')
            ->join('p.store', 's')
+           ->join('p.type_product', 'tp')
+           ->addSelect('tp')
            ->andWhere('p.store = :idUnit')
            ->setParameter('idUnit', $idUnit)
            ->orderBy('p.id', 'ASC')

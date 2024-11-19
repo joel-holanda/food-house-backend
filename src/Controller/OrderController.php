@@ -7,32 +7,32 @@ use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class OrderController extends AbstractController
+class OrderController extends BaseController
 {
     #[Route(
         '/orders',
         name: 'get_orders',
         methods: ['GET'],
     )]
-    public function index(OrderRepository $orderRepository, Request $request): JsonResponse | Response
+    public function index(OrderRepository $orderRepository, Request $request): JsonResponse
     {
-        $context = json_decode($request->getContent(), true);
+        $param = $this->verifyParamRouter($request, ['userId']);
+        if($param instanceof JsonResponse) return $param;
 
-        $orders = $orderRepository->searchAllOrders($context['userId']);
+        $orders = $orderRepository->searchAllOrders($param['userId']);
 
-        if($orders == []) return new Response("Usuario não encontrado", 201);
+        if($orders == []) return new JsonResponse("Usuario não encontrado", 201);
 
         $data = [];
         foreach ($orders as $order) {
             $data[] = [
                 'id' => $order->getId(),
-                'client_name' => $order->getUser(),
+                'client_name' => $order->getUser()->getName(),
                 'status' => $order->getStatus(),
-                'client_address' => $order->getPaymentMethod(),
+                'paymentMethod' => $order->getPaymentMethod(),
                 'created_at' => $order->getCreatedAt(),
             ];
         }

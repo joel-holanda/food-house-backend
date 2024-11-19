@@ -28,6 +28,7 @@ class OrderRepository extends ServiceEntityRepository
    {
        return $this->createQueryBuilder('o')
            ->join('o.user', 'u')
+           ->addSelect('u')
            ->join('o.orderProducts', 'op')
            ->join('op.product', 'p')
            ->andWhere('u.id = :user')
