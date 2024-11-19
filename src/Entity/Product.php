@@ -39,6 +39,10 @@ class Product
     #[ORM\ManyToOne(inversedBy: 'products')]
     private ?Store $store = null;
 
+    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?TypeProduct $type_product = null;
+
     public function __construct()
     {
         $this->orderProducts = new ArrayCollection();
@@ -159,6 +163,18 @@ class Product
     public function setStore(?Store $store): static
     {
         $this->store = $store;
+
+        return $this;
+    }
+
+    public function getTypeProduct(): ?TypeProduct
+    {
+        return $this->type_product;
+    }
+
+    public function setTypeProduct(?TypeProduct $type_product): static
+    {
+        $this->type_product = $type_product;
 
         return $this;
     }
