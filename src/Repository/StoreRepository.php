@@ -24,21 +24,13 @@ class StoreRepository extends ServiceEntityRepository
    /**
     * @return Store[] Returns an array of Store objects
     */
-   public function findByExampleField(): array
+   public function storeId($storeId): array
    {
        return $this->createQueryBuilder('s')
+           ->andWhere('s.id = :storeId')
+           ->setParameter('storeId', $storeId)
            ->getQuery()
            ->getResult()
        ;
    }
-
-//    public function findOneBySomeField($value): ?Store
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

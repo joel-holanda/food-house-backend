@@ -24,17 +24,18 @@ class OrderRepository extends ServiceEntityRepository
 //    /**
 //     * @return Order[] Returns an array of Order objects
 //     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('o')
-//            ->andWhere('o.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('o.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+   public function searchAllOrders($userId)
+   {
+       return $this->createQueryBuilder('o')
+           ->join('o.user', 'u')
+           ->join('o.orderProducts', 'op')
+           ->join('op.product', 'p')
+           ->andWhere('u.id = :user')
+           ->setParameter('user', $userId)
+           ->getQuery()
+           ->getResult()
+       ;
+   }
 
 //    public function findOneBySomeField($value): ?Order
 //    {
