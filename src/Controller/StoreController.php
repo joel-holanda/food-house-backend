@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Repository\StoreRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\Store;
@@ -12,13 +11,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 
-class StoreController extends AbstractController
+class StoreController extends BaseController
 {
     #[Route('/store', name: 'get_store', methods: ['GET'])]
     public function index(StoreRepository $storeRepository, Request $request): JsonResponse
     {
-        $content = json_decode($request->getContent(), true);
-        $stores = $storeRepository->storeId($content['store']);
+        $param = $this->verifyParamRouter($request, ['store']);
+        if($param instanceof JsonResponse) return $param;
+
+        $stores = $storeRepository->storeId($param['store']);
+
         $data = [];
         foreach ($stores as $store) {
             $data[] = [
@@ -28,7 +30,7 @@ class StoreController extends AbstractController
                 'cnpj' => $store->getCnpj()
             ];
         }
-        // var_dump($data);exit;
+
         return new JsonResponse(json_encode($data[0]));
     }
 
@@ -39,8 +41,8 @@ class StoreController extends AbstractController
     )]
     public function addStore(Request $request, EntityManagerInterface $em): Response
     {
-        $content = $request->getContent();
-        $data = json_decode($content, true);
+        $data = $this->verifyParamRouter($request, ['name', 'cnpj', 'storeContact', 'description', ]);
+
         $store = new Store;
         $store->setName($data['nome']);
         $store->setCnpj($data['cnpj']);

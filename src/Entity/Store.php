@@ -33,11 +33,14 @@ class Store
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?StoreContact $store_contact = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?Address $address = null;
-
     #[ORM\OneToMany(mappedBy: 'store', targetEntity: Product::class)]
     private Collection $products;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
 
     public function __construct()
     {
@@ -121,18 +124,6 @@ class Store
         return $this;
     }
 
-    public function getAddress(): ?Address
-    {
-        return $this->address;
-    }
-
-    public function setAddress(?Address $address): static
-    {
-        $this->address = $address;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Product>
      */
@@ -159,6 +150,30 @@ class Store
                 $product->setStore(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
 
         return $this;
     }

@@ -15,7 +15,7 @@ class OrderController extends BaseController
     #[Route(
         '/orders',
         name: 'get_orders',
-        methods: ['GET'],
+        methods: ['GET']
     )]
     public function index(OrderRepository $orderRepository, Request $request): JsonResponse
     {
@@ -47,11 +47,13 @@ class OrderController extends BaseController
     )]
     public function createOrder(Request $request, EntityManagerInterface $em): Response
     {
-        $context = $request->getContent();
-        $data = json_decode($context, true);
+        $param = $this->verifyParamRouter($request, ['userId', 'address', 'description']);
+        if($param instanceof JsonResponse) return $param;
+
         $order = new Order;
-        $order->setUser($data['userId']);
-        $order->setStatus($data['address']);
+        $order->setUser($param['userId']);
+        $order->setStatus($param['address']);
+        $order->setDescription($param['description']);
         $order->setCreatedAt(new \DateTimeImmutable('now'));
         $order->setStatus(Order::STATUS_ORDER_PROGRESS);
 
@@ -66,13 +68,11 @@ class OrderController extends BaseController
         name: 'update_order',
         methods: ['PUT']
     )]
-    public function updateOrder(Request $request, EntityManagerInterface $em, OrderRepository $orderRepository,$id): Response
+    public function updateOrder(Request $request, EntityManagerInterface $em, OrderRepository $orderRepository, int $id): Response
     {
         $order = $orderRepository->find($id);
 
-        if(!$order) {
-            return new Response('Pedido não encontandoo!!!!!');
-        }
+        if(!$order) return new Response('Pedido não encontandoo!!!!!');
 
         $data = json_decode($request->getContent(), true);
         
