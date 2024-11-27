@@ -3,41 +3,44 @@
 namespace App\Controller;
 
 use App\Entity\Order;
+use App\Model\OrderModel;
 use App\Repository\OrderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class OrderController extends BaseController
 {
+    private SerializerInterface $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
     #[Route(
         '/orders',
         name: 'get_orders',
         methods: ['GET']
     )]
-    public function index(OrderRepository $orderRepository, Request $request): JsonResponse
+    public function index(OrderRepository $orderRepository, Request $request)
     {
         $param = $this->verifyParamRouter($request, ['userId']);
         if($param instanceof JsonResponse) return $param;
 
         $orders = $orderRepository->searchAllOrders($param['userId']);
-
-        if($orders == []) return new JsonResponse("Usuario não encontrado", 201);
-
+        
         $data = [];
-        foreach ($orders as $order) {
-            $data[] = [
-                'id' => $order->getId(),
-                'client_name' => $order->getUser()->getName(),
-                'status' => $order->getStatus(),
-                'paymentMethod' => $order->getPaymentMethod(),
-                'created_at' => $order->getCreatedAt(),
-            ];
+        foreach($orders as $order) {
+            $data[] = new OrderModel($order);
         }
-
-        return new JsonResponse($data);
+        
+        $data = $this->serializer->serialize($data, 'json', ['groups' => ['order']]);
+        print_r($data);exit;
+        return new Response($data);
     }
 
     #[Route(
