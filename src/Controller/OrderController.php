@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use App\Repository\OrderRepository;
+use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,14 +47,21 @@ class OrderController extends BaseController
         name: 'create_order',
         methods: ['POST']
     )]
-    public function createOrder(Request $request, EntityManagerInterface $em): Response
+    public function createOrder(Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
     {
         $context = $request->getContent();
         $data = json_decode($context, true);
+        $users = $userRepository->findUserId($data['userId']);
+        $userId = '';
+        foreach($users as $user) {
+            $userId = $user;
+        }
         $order = new Order;
-        $order->setUser($data['userId']);
-        $order->setStatus($data['address']);
+        $order->setUser($userId);
         $order->setCreatedAt(new \DateTimeImmutable('now'));
+        $order->setUpdatedAt(new \DateTimeImmutable('now'));
+        $order->setPaymentMethod($data['payment']);
+        $order->setDescription($data['description']);
         $order->setStatus(Order::STATUS_ORDER_PROGRESS);
 
         $em->persist($order);
@@ -62,11 +71,11 @@ class OrderController extends BaseController
     }
 
     #[Route(
-        '/order/update/{id}',
+        '/order/{id}/update',
         name: 'update_order',
         methods: ['PUT']
     )]
-    public function updateOrder(Request $request, EntityManagerInterface $em, OrderRepository $orderRepository,$id): Response
+    public function updateOrder(Request $request, EntityManagerInterface $em, OrderRepository $orderRepository, int $id, UserRepository $userRepository): Response
     {
         $order = $orderRepository->find($id);
 
@@ -75,14 +84,23 @@ class OrderController extends BaseController
         }
 
         $data = json_decode($request->getContent(), true);
-        
-        if($data['name']) {
-            $order->setUser($data['name']);
-        }
-        if($data['address']) {
-            $order->setUser($data['address']);
+        $users = $userRepository->findUserId($data['userId']);
+        $userId = '';
+        foreach($users as $user) {
+            $userId = $user;
         }
 
+        
+        if($data['userId']) {
+            $order->setUser($userId);
+        }
+        if($data['payment']) {
+            $order->setPaymentMethod($data['payment']);
+        }
+        if($data['description']) {
+            $order->setDescription($data['description']);
+        }
+        $order->setUpdatedAt(new \DateTimeImmutable('now'));
         $em->persist($order);
         $em->flush();
 
