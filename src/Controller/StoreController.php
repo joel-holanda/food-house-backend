@@ -14,10 +14,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StoreController extends AbstractController
 {
-    #[Route('/store', name: 'get_store', methods: ['GET'])]
-    public function index(StoreRepository $storeRepository, Request $request): JsonResponse
+    #[Route(
+        '/store',
+        name: 'get_store',
+        methods: ['GET']
+    )]
+    public function index(StoreRepository $storeRepository, Request $request)
     {
         $content = json_decode($request->getContent(), true);
+        
         $stores = $storeRepository->storeId($content['store']);
         $data = [];
         foreach ($stores as $store) {
@@ -28,7 +33,6 @@ class StoreController extends AbstractController
                 'cnpj' => $store->getCnpj()
             ];
         }
-        // var_dump($data);exit;
         return new JsonResponse(json_encode($data[0]));
     }
 

@@ -21,9 +21,6 @@ class Order
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $created_at = null;
-
     #[ORM\Column]
     private ?int $status = null;
 
@@ -33,14 +30,17 @@ class Order
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updated_at = null;
-
     #[ORM\ManyToOne(inversedBy: 'orders')]
     private ?User $user = null;
 
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderProduct::class)]
     private Collection $orderProducts;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updated_at = null;
 
     public function __construct()
     {
@@ -146,7 +146,7 @@ class Order
     {
         if ($this->orderProducts->removeElement($orderProduct)) {
             // set the owning side to null (unless already changed)
-            if ($orderProduct->getOrderId() === $this) {
+            if ($orderProduct->getOrder() === $this) {
                 $orderProduct->setOrder(null);
             }
         }

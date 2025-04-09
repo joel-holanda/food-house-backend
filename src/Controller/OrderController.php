@@ -3,9 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Order;
+use App\Model\OrderModel;
+use App\Form\Type\OrderType;
 use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,8 +22,9 @@ class OrderController extends BaseController
     )]
     public function index(OrderRepository $orderRepository, Request $request): JsonResponse
     {
-        $param = $this->verifyParamRouter($request, ['userId']);
-        if($param instanceof JsonResponse) return $param;
+
+        $param = ['userId'];
+        $this->verifyParamRouter($request, $param);
 
         $orders = $orderRepository->searchAllOrders($param['userId']);
 
@@ -47,27 +49,28 @@ class OrderController extends BaseController
         name: 'create_order',
         methods: ['POST']
     )]
-    public function createOrder(Request $request, EntityManagerInterface $em, UserRepository $userRepository): Response
+    public function createOrder(Request $request, UserRepository $userRepository)
     {
-        $context = $request->getContent();
-        $data = json_decode($context, true);
+        $order = new Order;
+        $form = $this->createForm(OrderType::class, $order);
+        $this->verifyForm($form, $request);
+
+        $data = json_decode($request->getContent(), true);
+
         $users = $userRepository->findUserId($data['userId']);
         $userId = '';
         foreach($users as $user) {
-            $userId = $user;
-        }
-        $order = new Order;
-        $order->setUser($userId);
-        $order->setCreatedAt(new \DateTimeImmutable('now'));
-        $order->setUpdatedAt(new \DateTimeImmutable('now'));
-        $order->setPaymentMethod($data['payment']);
-        $order->setDescription($data['description']);
-        $order->setStatus(Order::STATUS_ORDER_PROGRESS);
-
-        $em->persist($order);
-        $em->flush();
-
-        return new Response('Order create with sucess! ' . $order->getId());
+                $userId = $user;
+            }
+            $order->setUser($userId);
+            $order->setCreatedAt(new \DateTimeImmutable('now'));
+            $order->setUpdatedAt(new \DateTimeImmutable('now'));
+            $order->setPaymentMethod($data['paymentMethod']);
+            $order->setDescription($data['description']);
+            $order->setStatus(Order::STATUS_ORDER_PROGRESS);
+            
+        return $this->responseApi(new OrderModel($order), Response::HTTP_CREATED);
+        // return new Response('Order create with sucess! ' . $order->getId());
     }
 
     #[Route(

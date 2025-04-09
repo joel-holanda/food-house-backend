@@ -73,7 +73,7 @@ class OrderProduct
 
     public function setOrder(?Order $order): static
     {
-        $this->order_id = $order;
+        $this->order = $order;
 
         return $this;
     }

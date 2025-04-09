@@ -5,11 +5,25 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class BaseController extends AbstractController
 {
-    public function verifyParamRouter(Request $request, array $param): JsonResponse | array
+
+    /**
+     * @var SerializerInterface
+     */
+    public $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+    public function verifyParamRouter(Request $request, array $param)
     {
         $context = json_decode($request->getContent(), true);
 
@@ -34,6 +48,28 @@ class BaseController extends AbstractController
     {
         return new JsonResponse($message, $status);
     }
+    
+    public function verifyForm($form, Request $request) 
+    {
+        if($request->getMethod() == 'POST') {
+            $data = json_decode($request->getContent(), true);
+        } else {
+            $data = $request->query->all();
+        }
+        $form->submit($data);
+        if (!$form->isValid()) {
+            return new Response('Dados invalidos');
+        }
+        
+    }
 
+    public function responseApi($data) 
+    {
+        $serializer = new Serializer([new ObjectNormalizer()], []);
+
+        $json = $serializer->normalize($data, 'json');
+
+        return $json;
+    }
 
 }
