@@ -6,22 +6,23 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
+// use Symfony\Component\Serializer\SerializerInterface;
 
 class BaseController extends AbstractController
 {
 
-    /**
-     * @var SerializerInterface
-     */
-    public $serializer;
+    // /**
+    //  * @var SerializerInterface
+    //  */
+    // public $serializer;
 
-    public function __construct(SerializerInterface $serializer)
-    {
-        $this->serializer = $serializer;
-    }
+    // public function __construct(SerializerInterface $serializer)
+    // {
+    //     $this->serializer = $serializer;
+    // }
 
     public function verifyParamRouter(Request $request, array $param)
     {
@@ -35,10 +36,9 @@ class BaseController extends AbstractController
         $haveParamDuplicate = array_count_values($paramRequest) > 1 ? true : false;
 
 
-        foreach($context as $body)
-        {
-            if(!in_array($body, $param)) $this->getResponse("Erradoo") ;
-            if($haveParamDuplicate) $this->getResponse("Tem parametro duplicado, pode n man, faz direito");
+        foreach ($context as $body) {
+            if (!in_array($body, $param)) $this->getResponse("Erradoo");
+            if ($haveParamDuplicate) $this->getResponse("Tem parametro duplicado, pode n man, faz direito");
         }
 
         return $context;
@@ -48,28 +48,28 @@ class BaseController extends AbstractController
     {
         return new JsonResponse($message, $status);
     }
-    
-    public function verifyForm($form, Request $request) 
+
+    public function verifyForm($form, Request $request)
     {
-        if($request->getMethod() == 'POST') {
+        if ($request->getMethod() == 'POST') {
             $data = json_decode($request->getContent(), true);
         } else {
             $data = $request->query->all();
         }
-        $form->submit($data);
+        $form->submit($data, false);
         if (!$form->isValid()) {
-            return new Response('Dados invalidos');
+            return new JsonResponse([
+                'errors' => $form->getErrors(true, false),
+            ], 400);
         }
-        
     }
 
-    public function responseApi($data) 
+    public function responseApi($data)
     {
-        $serializer = new Serializer([new ObjectNormalizer()], []);
+        $serializer = new Serializer([new ObjectNormalizer()], [new JsonEncode()]);
 
-        $json = $serializer->normalize($data, 'json');
-
+        $json = $serializer->serialize($data, 'json', ['groups' => ['order']]);
+        //dd($json);
         return $json;
     }
-
 }

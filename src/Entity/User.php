@@ -6,6 +6,8 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User
@@ -33,6 +35,8 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Address::class)]
     private Collection $address;
 
+    #[Groups('default')]
+    #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Order::class)]
     private Collection $orders;
 

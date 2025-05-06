@@ -46,7 +46,7 @@ class StoreController extends AbstractController
         $content = $request->getContent();
         $data = json_decode($content, true);
         $store = new Store;
-        $store->setName($data['nome']);
+        $store->setName($data['name']);
         $store->setCnpj($data['cnpj']);
 
         $em->persist($store);

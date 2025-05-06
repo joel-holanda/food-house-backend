@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OrderType extends AbstractType
 {
@@ -18,5 +19,13 @@ class OrderType extends AbstractType
             ])
             ->add('paymentMethod', TextType::class)
             ->add('description', TextType::class);
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'csrf_protection' => false,
+            'allow_extra_fields' => false
+        ]);
     }
 }

@@ -6,6 +6,8 @@ use App\Repository\OrderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -30,6 +32,8 @@ class Order
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
+    #[Groups('order')]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'orders')]
     private ?User $user = null;
 
@@ -57,7 +61,7 @@ class Order
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    public function setCreatedAt(?\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
 
@@ -105,7 +109,7 @@ class Order
         return $this->updated_at;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
 

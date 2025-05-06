@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\OrderProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: OrderProductRepository::class)]
 class OrderProduct
@@ -19,9 +21,12 @@ class OrderProduct
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[Groups('order')]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'orderProducts')]
     private ?Product $product = null;
 
+    #[Groups('order')]
     #[ORM\ManyToOne(inversedBy: 'orderProducts')]
     private ?Order $order = null;
 
