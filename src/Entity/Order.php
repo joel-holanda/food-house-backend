@@ -6,6 +6,8 @@ use App\Repository\OrderRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
 #[ORM\Table(name: '`order`')]
@@ -21,9 +23,6 @@ class Order
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $created_at = null;
-
     #[ORM\Column]
     private ?int $status = null;
 
@@ -33,14 +32,19 @@ class Order
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updated_at = null;
-
+    #[Groups('order')]
+    #[MaxDepth(1)]
     #[ORM\ManyToOne(inversedBy: 'orders')]
     private ?User $user = null;
 
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderProduct::class)]
     private Collection $orderProducts;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updated_at = null;
 
     public function __construct()
     {
@@ -57,7 +61,7 @@ class Order
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    public function setCreatedAt(?\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
 
@@ -105,7 +109,7 @@ class Order
         return $this->updated_at;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
 
@@ -146,7 +150,7 @@ class Order
     {
         if ($this->orderProducts->removeElement($orderProduct)) {
             // set the owning side to null (unless already changed)
-            if ($orderProduct->getOrderId() === $this) {
+            if ($orderProduct->getOrder() === $this) {
                 $orderProduct->setOrder(null);
             }
         }
