@@ -6,6 +6,8 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -32,7 +34,8 @@ class Product
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
-
+    
+    #[MaxDepth(1)]
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: OrderProduct::class)]
     private Collection $orderProducts;
 
