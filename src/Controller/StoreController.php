@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
+use App\Form\Type\StoreType;
+use App\Model\StoreModel;
 use App\Repository\StoreRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\Store;
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 
-class StoreController extends AbstractController
+class StoreController extends BaseController
 {
     #[Route(
         '/store',
@@ -41,16 +42,17 @@ class StoreController extends AbstractController
         name: 'post_store',
         methods: ['POST']
     )]
-    public function addStore(Request $request, EntityManagerInterface $em): Response
+    public function addStore(Request $request, EntityManagerInterface $em)
     {
-        $content = $request->getContent();
-        $data = json_decode($content, true);
-        $store = new Store;
+        $form = $this->createForm(StoreType::class, new StoreModel());
+        $this->verifyForm($form, $request);
+        $data = json_decode($request->getContent(), true);
+        $store = new Store();
         $store->setName($data['name']);
         $store->setCnpj($data['cnpj']);
         $store->setDescription($data['description']);
         $store->setEmail($data['email']);
-        $store->setPhoto($data['photo']);
+        $store->setPhoto($data['photo'] ? $data['photo'] : null);
         $store->setStoreContact(null);
         $store->setAddress(null);
 

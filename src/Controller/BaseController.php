@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -9,20 +10,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncode;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-// use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Form\FormInterface;
 
 class BaseController extends AbstractController
 {
 
-    // /**
-    //  * @var SerializerInterface
-    //  */
-    // public $serializer;
+    private $doctrine;
 
-    // public function __construct(SerializerInterface $serializer)
-    // {
-    //     $this->serializer = $serializer;
-    // }
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->serializer = $doctrine;
+    }
 
     public function verifyParamRouter(Request $request, array $param)
     {
@@ -37,8 +35,10 @@ class BaseController extends AbstractController
 
 
         foreach ($context as $body) {
-            if (!in_array($body, $param)) $this->getResponse("Erradoo");
-            if ($haveParamDuplicate) $this->getResponse("Tem parametro duplicado, pode n man, faz direito");
+            if (!in_array($body, $param))
+                $this->getResponse("Erradoo");
+            if ($haveParamDuplicate)
+                $this->getResponse("Tem parametro duplicado, pode n man, faz direito");
         }
 
         return $context;
@@ -51,16 +51,15 @@ class BaseController extends AbstractController
 
     public function verifyForm($form, Request $request)
     {
-        if ($request->getMethod() == 'POST') {
-            $data = json_decode($request->getContent(), true);
-        } else {
-            $data = $request->query->all();
-        }
-        $form->submit($data, false);
-        if (!$form->isValid()) {
-            return new JsonResponse([
-                'errors' => $form->getErrors(true, false),
-            ], 400);
+        $data = json_decode($request->getContent(), true);
+        $form->submit($data);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            // Retorna os erros de validação em JSON
+            $errors = [];
+            foreach ($form->getErrors(true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+            return $this->json(['errors' => $errors], 400);
         }
     }
 
@@ -71,5 +70,28 @@ class BaseController extends AbstractController
         $json = $serializer->serialize($data, 'json', ['groups' => ['order']]);
         //dd($json);
         return $json;
+    }
+
+    /**
+     * Valida um formulário e lança uma exceção que interrompe a requisição, caso não seja válido
+     *
+     * @param FormInterface $form
+     * @param Request $request
+     */
+    protected function validateForm(FormInterface $form, Request $request)
+    {
+        if ($request->getMethod() == 'GET') {
+            $data = $request->query->all();
+        } else {
+            $data = json_decode($request->getContent(), true);
+            if ($data === null) {
+                return new Response('invalid_body_format', Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+        }
+        $clearMissing = $request->getMethod() != 'PATCH';
+        $form->submit($data, $clearMissing);
+        if (!$form->isValid()) {
+            return 'errado';
+        }
     }
 }
