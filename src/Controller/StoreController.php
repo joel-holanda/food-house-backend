@@ -11,30 +11,24 @@ use App\Entity\Store;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
 
 
 class StoreController extends BaseController
 {
     #[Route(
-        '/store',
+        '/store/{id}',
         name: 'get_store',
         methods: ['GET']
     )]
-    public function index(StoreRepository $storeRepository, Request $request)
+    public function index(StoreRepository $storeRepository, Request $request,NormalizerInterface $normalize, int $id)
     {
-        $content = json_decode($request->getContent(), true);
+        $store = $storeRepository->storeId($id);
+        $jsonStore = $normalize->normalize($store[0],'json');
 
-        $stores = $storeRepository->storeId($content['store']);
-        $data = [];
-        foreach ($stores as $store) {
-            $data[] = [
-                'id' => $store->getId(),
-                'name' => $store->getName(),
-                'description' => $store->getDescription(),
-                'cnpj' => $store->getCnpj()
-            ];
-        }
-        return new JsonResponse($data[0]);
+        return new JsonResponse($jsonStore, 200);
     }
 
     #[Route(
@@ -42,23 +36,21 @@ class StoreController extends BaseController
         name: 'post_store',
         methods: ['POST']
     )]
-    public function addStore(Request $request, EntityManagerInterface $em)
+    public function addStore(Request $request, EntityManagerInterface $em, SerializerInterface $serializer)
     {
         $form = $this->createForm(StoreType::class, new StoreModel());
-        $this->verifyForm($form, $request);
-        $data = json_decode($request->getContent(), true);
-        $store = new Store();
-        $store->setName($data['name']);
-        $store->setCnpj($data['cnpj']);
-        $store->setDescription($data['description']);
-        $store->setEmail($data['email']);
-        $store->setPhoto($data['photo'] ? $data['photo'] : null);
-        $store->setStoreContact(null);
-        $store->setAddress(null);
+        $errors = $this->verifyForm($form, $request);
+        if($errors) return $errors;
 
+        $store = new Store();
+
+        $serializer->deserialize($request->getContent(), Store::class, 'json', context: ['object_to_populate' => $store]);
         $em->persist($store);
         $em->flush();
 
-        return new Response('Loja add com sucesso. Nome: ' . $data['name']);
+        $jsonStore = $serializer->serialize($store, 'json'
+    );
+
+        return new Response($jsonStore);
     }
 }

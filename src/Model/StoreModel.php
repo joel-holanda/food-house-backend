@@ -6,63 +6,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class StoreModel
 {
-    #[Assert\NotBlank(message: "O campo name é obrigatorio")]
+    #[Assert\NotBlank(message: "The field name is not find")]
     public string $name;
 
-    #[Assert\NotBlank(message: "O campo description é obrigatorio")]
+    #[Assert\NotBlank(message: "The field description is not find")]
     public string $description;
 
-    #[Assert\NotBlank(message: "O campo email é obrigatorio")]
+    #[Assert\NotBlank(message: "The field email is not find")]
     #[Assert\Email(message: "fortamdo do email invalido")]
     public string $email;
 
-    #[Assert\NotBlank(message: "O campo email é obrigatorio")]
+    #[Assert\NotBlank(message: "field cnpj is not find")]
     public int $cnpj;
 }
-
-// class StoreModel
-// {
-//     /**
-//      * @var int
-//      */
-//     private $id;
-
-//     /**
-//      * @var string
-//      */
-//     public $name;
-
-//     /**
-//      * @var string
-//      */
-//     public $description = null;
-
-//     /**
-//      * @var int
-//      */
-//     public $cnpj;
-
-//     /**
-//      * @var string
-//      */
-//     public $email;
-
-//     /**
-//      * @var int
-//      */
-//     public $photo;
-
-//     public function __construct(Store $store = null)
-//     {
-//         if($store){
-//             $this->id = $store->getId();
-//             $this->name = $store->getName();
-//             $this->description = $store->getDescription();
-//             $this->cnpj = $store->getCnpj();
-//             $this->email = $store->getEmail();
-//             $this->photo = $store->getPhoto();
-//         }
-
-//     }
-
-// }

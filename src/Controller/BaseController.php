@@ -54,12 +54,11 @@ class BaseController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $form->submit($data);
         if (!$form->isSubmitted() || !$form->isValid()) {
-            // Retorna os erros de validação em JSON
             $errors = [];
             foreach ($form->getErrors(true) as $error) {
                 $errors[] = $error->getMessage();
             }
-            return $this->json(['errors' => $errors], 400);
+            return new Response(json_encode($errors), 400);
         }
     }
 
