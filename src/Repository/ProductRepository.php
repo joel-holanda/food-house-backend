@@ -21,20 +21,17 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-   /**
-    * @return Product[] Returns an array of Product objects
-    */
-   public function productsForStore($idUnit): array
+   public function productsForStore($idUnit)
    {
        return $this->createQueryBuilder('p')
            ->join('p.store', 's')
-           ->join('p.type_product', 'tp')
+           ->join('p.typeProduct', 'tp')
            ->addSelect('tp')
            ->andWhere('p.store = :idUnit')
            ->setParameter('idUnit', $idUnit)
            ->orderBy('p.id', 'ASC')
            ->getQuery()
-           ->getResult()
+           ->getResult();
        ;
    }
 }

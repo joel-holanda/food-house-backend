@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Product;
+use App\Model\ProductsModel;
 use App\Repository\ProductRepository;
+
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class ProductsController extends BaseController
 {
@@ -17,21 +19,16 @@ class ProductsController extends BaseController
     )]
     public function getProducts(ProductRepository $productRepository, Request $request)
     {
-        $param = $this->verifyParamRouter($request, ['store']);
-        if($param instanceof Response) return $param;
-        
-        $products = $productRepository->productsForStore($param['store']);
-        $data = [];
-        
-        foreach($products as $product)
-        {
-            $data[] = [
-                'id' => $product->getId(),
-                'name' => $product->getName(),
-                'typeId' => $product->getTypeProduct()->getId(),
-                'storeId' => $product->getStore()->getId()
-            ];
+        $storeId = $request->query->get('storeId');
+
+        /** @var Product $products */
+        $products = $productRepository->productsForStore($storeId);
+
+        $productsModel = [];
+        foreach ($products as $product) {
+            $productsModel[] = new ProductsModel($product);
         }
+        $data = $this->normalizer->normalize($productsModel, 'json');
 
         return new JsonResponse($data);
     }

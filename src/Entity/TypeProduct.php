@@ -27,7 +27,7 @@ class TypeProduct
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
-    #[ORM\OneToMany(mappedBy: 'type_product', targetEntity: Product::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'typeProduct', targetEntity: Product::class, orphanRemoval: true)]
     private Collection $products;
 
     public function __construct()

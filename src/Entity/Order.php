@@ -27,7 +27,7 @@ class Order
     private ?int $status = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $payment_method = null;
+    private ?string $paymentMethod = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
@@ -82,12 +82,12 @@ class Order
 
     public function getPaymentMethod(): ?string
     {
-        return $this->payment_method;
+        return $this->paymentMethod;
     }
 
-    public function setPaymentMethod(string $payment_method): static
+    public function setPaymentMethod(string $paymentMethod): static
     {
-        $this->payment_method = $payment_method;
+        $this->paymentMethod = $paymentMethod;
 
         return $this;
     }

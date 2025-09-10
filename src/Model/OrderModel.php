@@ -4,42 +4,29 @@ namespace App\Model;
 
 use App\Entity\Order;
 use App\Entity\User;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderModel 
 {
-    /**
-     * @var int
-     */
-    public $id;
+    public $status = ORder::STATUS_ORDER_PROGRESS;
 
-    /**
-     * @var int
-     */
-    public $status;
+    #[Assert\NotBlank(message: "The field status is not find")]
+    public $paymentMethod;
 
-    /**
-     * @var string
-     */
-    public $payment_method;
-
-    /**
-     * @var string
-     */
+    #[Assert\NotBlank(message: "The field description is not find")]
     public $description;
 
-    /**
-     * @var User
-     */
-    public $user;
+    #[Assert\NotBlank(message: "The field user is not find")]
+    public $userId;
 
-    public function __construct(Order $order)
+    public function __construct(Order $order = null)
     {
         if($order) {
             $this->id = $order->getId();
             $this->status = $order->getStatus();
-            $this->payment_method = $order->getPaymentMethod();
+            $this->paymentMethod = $order->getPaymentMethod();
             $this->description = $order->getDescription();
-            $this->user = $order->getUser();
+            $this->user = $order->getUser()->getName();
         }
     }
 }

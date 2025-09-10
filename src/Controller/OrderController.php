@@ -3,13 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Order;
-use App\Model\OrderModel;
 use App\Form\Type\OrderType;
+use App\Model\OrderModel;
 use App\Repository\OrderRepository;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Dom\Entity;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,26 +20,18 @@ class OrderController extends BaseController
         name: 'get_orders',
         methods: ['GET'],
     )]
-    public function index(OrderRepository $orderRepository, Request $request): JsonResponse
+    public function index(OrderRepository $orderRepository, Request $request)
     {
 
-        $param = ['userId'];
-        $this->verifyParamRouter($request, $param);
+        $storeId = $request->query->get('storeId');
+        $orders = $orderRepository->searchAllOrders($storeId);
 
-        $orders = $orderRepository->searchAllOrders($param['userId']);
-
-        if ($orders == []) return new JsonResponse("Usuario não encontrado", 201);
-
-        $data = [];
+        $orderModel = [];
         foreach ($orders as $order) {
-            $data[] = [
-                'id' => $order->getId(),
-                'client_name' => $order->getUser()->getName(),
-                'status' => $order->getStatus(),
-                'paymentMethod' => $order->getPaymentMethod(),
-                'created_at' => $order->getCreatedAt(),
-            ];
+            $orderModel[] = new OrderModel($order);
         }
+
+        $data = $this->normalizer->normalize($orderModel, 'json');
 
         return new JsonResponse($data);
     }
@@ -53,26 +43,21 @@ class OrderController extends BaseController
     )]
     public function createOrder(Request $request, UserRepository $userRepository, EntityManagerInterface $em)
     {
-        $order = new Order;
-        $form = $this->createForm(OrderType::class, $order);
-        $this->verifyForm($form, $request);
+        $form = $this->createForm(OrderType::class, new OrderModel());
 
-        $data = json_decode($request->getContent(), true);
+        $errors = $this->verifyForm($form, $request);
+        if($errors) return $errors;
 
-        $users = $userRepository->findUserId($data['userId']);
-        $userId = '';
-        foreach ($users as $user) {
-            $userId = $user;
-        }
-        $order->setUser($userId);
-        $order->setCreatedAt(new \DateTimeImmutable('now'));
-        $order->setUpdatedAt(new \DateTimeImmutable('now'));
-        $order->setPaymentMethod($data['paymentMethod']);
-        $order->setDescription($data['description']);
-        $order->setStatus(Order::STATUS_ORDER_PROGRESS);
+        $order = new Order();
+
+        $this->serializer->deserialize($request->getContent(), Order::class, 'json', context: ['object_to_populate' => $order]);
+
         $em->persist($order);
         $em->flush();
-        return new Response('Order create with sucess! ' . $order->getId());
+
+        $data = $this->serializer->serialize($order, 'json');
+
+        return new Response($data);
     }
 
     #[Route(

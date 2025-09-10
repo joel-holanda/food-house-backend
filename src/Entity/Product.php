@@ -44,7 +44,7 @@ class Product
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?TypeProduct $type_product = null;
+    private ?TypeProduct $typeProduct = null;
 
     public function __construct()
     {
@@ -172,12 +172,12 @@ class Product
 
     public function getTypeProduct(): ?TypeProduct
     {
-        return $this->type_product;
+        return $this->typeProduct;
     }
 
-    public function setTypeProduct(?TypeProduct $type_product): static
+    public function setTypeProduct(?TypeProduct $typeProduct): static
     {
-        $this->type_product = $type_product;
+        $this->typeProduct = $typeProduct;
 
         return $this;
     }

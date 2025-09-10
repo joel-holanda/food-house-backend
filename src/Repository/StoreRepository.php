@@ -24,13 +24,15 @@ class StoreRepository extends ServiceEntityRepository
    /**
     * @return Store[] Returns an array of Store objects
     */
-   public function storeId($storeId): array
+   public function storeId($storeId): Store
    {
-       return $this->createQueryBuilder('s')
+       $qb = $this->createQueryBuilder('s')
            ->andWhere('s.id = :storeId')
            ->setParameter('storeId', $storeId)
            ->getQuery()
            ->getResult()
        ;
+
+       return $qb[0];
    }
 }
