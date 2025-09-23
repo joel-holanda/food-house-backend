@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use App\Repository\OrderProductRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: OrderProductRepository::class)]
 class OrderProduct
@@ -15,20 +13,20 @@ class OrderProduct
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(nullable:true)]
+    #[ORM\ManyToOne(inversedBy: 'orderProducts')]
+    private ?Product $product = null;
+
+    #[ORM\ManyToOne(inversedBy: 'orderProducts')]
+    private ?Order $order = null;
+
+    #[ORM\Column]
+    private int $quantity = 0;
+
+    #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
-
-    #[Groups('order')]
-    #[MaxDepth(1)]
-    #[ORM\ManyToOne(inversedBy: 'orderProducts')]
-    private ?Product $product = null;
-
-    #[Groups('order')]
-    #[ORM\ManyToOne(inversedBy: 'orderProducts')]
-    private ?Order $order = null;
 
     public function getId(): ?int
     {
@@ -79,6 +77,18 @@ class OrderProduct
     public function setOrder(?Order $order): static
     {
         $this->order = $order;
+
+        return $this;
+    }
+
+    public function getQuantity(): int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): static
+    {
+        $this->quantity = $quantity;
 
         return $this;
     }

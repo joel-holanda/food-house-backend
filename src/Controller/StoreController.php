@@ -21,7 +21,7 @@ class StoreController extends BaseController
     )]
     public function index(StoreRepository $storeRepository, Request $request, int $id)
     {
-        $store = $storeRepository->storeId($id);
+        $store = $storeRepository->findstoreId($id);
         $jsonStore = $this->normalizer->normalize($store,'json');
 
         return new JsonResponse($jsonStore, 200);
@@ -43,8 +43,8 @@ class StoreController extends BaseController
         $em->persist($store);
         $em->flush();
 
-        $jsonStore = $this->serializer->serialize($store, 'json');
+        $data = $this->serializer->serialize($store, 'json');
 
-        return new Response($jsonStore);
+        return new Response($data);
     }
 }

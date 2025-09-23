@@ -6,15 +6,11 @@ use App\Entity\Product;
 
 class ProductsModel
 {
-    private $id;
+    public $id;
     public $name;
-
     public $price;
-
     public $description;
-
     public $photo;
-
     public $typeProduct;
     public function __construct(Product $products = null)
     {
